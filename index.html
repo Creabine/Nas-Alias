@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Nas Alias</title>
+  <link rel="stylesheet" href="style/index.css">
+  <link rel="stylesheet" href="style/iview.css">
+  <script type="text/javascript" src="lib/vue.js"></script>
+  <script type="text/javascript" src="lib/iview.min.js"></script>
+
+</head>
+<body>
+  <div id="app">
+    <i-header>
+      <h1 class="title">Nas Alias</h1>
+    </i-header>
+    <i-content class="content">
+      <Card>
+        <p slot="title">Alias Check</p>
+        <i-form :model="formData" :label-width="80">
+          <Row>
+            <i-col span="6" offset="6">
+              <form-item label="Alias">
+                <i-input v-model="formData.alias" placeholder="Input Alias..."></i-input>
+              </form-item>
+            </i-col>
+            <i-col span="6">
+              <form-item>
+                <i-button type="primary" @click="aliasExistedInfo">Search</i-button>
+              </form-item>
+            </i-col>
+          </Row>
+
+          <Row v-show="aliasExisted">
+            <i-col span="6" offset="6">
+              <form-item label="Address">
+                <p>{{formData.address}}</p>
+              </form-item>
+            </i-col>
+            <i-col span="6">
+              <form-item>
+                <i-button type="primary" @click="sendCoin">Send NAS</i-button>
+              </form-item>
+            </i-col>
+          </Row>
+
+          <Row v-show="!aliasExisted">
+            <i-col span="6" offset="6">
+              <form-item label="Address">
+                <i-input v-model="formData.address" placeholder="Nas Wallet Address..."></i-input>
+              </form-item>
+            </i-col>
+            <i-col span="6">
+              <form-item>
+                <i-button type="primary" @click="addNewAlias">Create Alias</i-button>
+              </form-item>
+            </i-col>
+          </Row>
+
+
+        </i-form>
+      </Card>
+    </i-content>
+    <i-footer>
+      <h4>
+        <span>
+          <Avatar src="img/creabine.jpg" shape="square" size="large" />
+        </span>
+        <span>Author: Creabien</span>
+        <span>Created in 2018/5/7</span>
+      </h4>
+    </i-footer>
+  </div>
+  <!-- <script type="text/javascript" src="js/index.js"></script> -->
+  <script type="text/javascript">
+  let vm = new Vue({
+    el: '#app',
+    data: {
+      aliasExisted: false,
+      formData: {
+        alias: '',
+        address: '',
+        motto: ''
+      }
+    },
+    computed: {
+      showAddress () {
+        return !!this.formData.alias.length
+      }
+    },
+    methods: {
+      aliasExistedInfo() {
+        this.$Notice.info({
+          top: 50,
+          duration: 3,
+          title: '搜索成功，该别名已存在！',
+          desc: '成功获取别名对应的Nas钱包地址！'
+        });
+      },
+      aliasNotExistedInfo() {
+        this.$Notice.info({
+          top: 50,
+          duration: 3,
+          title: '搜索完成，该别名未创建！',
+          desc: '该别名可用，可以为本钱包地址绑定该别名。'
+        });
+      },
+      addNewAlias() {
+
+      },
+      sendCoin() {
+
+      }
+    },
+    created() {
+      console.log('aaa')
+      this.hehe = 'fff'
+    }
+  })
+
+  </script>
+</body>
+</html>

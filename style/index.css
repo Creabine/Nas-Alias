@@ -1,0 +1,14 @@
+#app{
+  width: 80%;
+  margin: 0 auto;
+}
+.content{
+  min-height: 800px;
+}
+.title{
+  color: #fff;
+  text-align: center;
+}
+.footerp{
+  
+}
