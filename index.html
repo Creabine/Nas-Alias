@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="style/iview.css">
   <script type="text/javascript" src="lib/vue.js"></script>
   <script type="text/javascript" src="lib/iview.min.js"></script>
+  <script type="text/javascript" src="lib/nebPay.js"></script>
+  <script type="text/javascript" src="lib/moment.js"></script>
 
 </head>
 <body>
@@ -28,15 +30,16 @@
             </i-col>
             <i-col span="6">
               <form-item>
-                <i-button type="primary" @click="aliasExistedInfo">Search</i-button>
+                <i-button type="primary" @click="searchAlias" :loading="searching">Search</i-button>
               </form-item>
             </i-col>
           </Row>
 
-          <Row v-show="aliasExisted">
+          <Layout v-show="aliasExisted">
+            <Row>
             <i-col span="6" offset="6">
               <form-item label="Address">
-                <p>{{formData.address}}</p>
+                <p>{{formData.author}}</p>
               </form-item>
             </i-col>
             <i-col span="6">
@@ -46,22 +49,62 @@
             </i-col>
           </Row>
 
-          <Row v-show="!aliasExisted">
-            <i-col span="6" offset="6">
-              <form-item label="Address">
-                <i-input v-model="formData.address" placeholder="Nas Wallet Address..."></i-input>
-              </form-item>
-            </i-col>
-            <i-col span="6">
-              <form-item>
-                <i-button type="primary" @click="addNewAlias">Create Alias</i-button>
+          <Row>
+            <i-col span="12" offset="6">
+              <form-item label="Motto">
+                <Tag checkable color="blue">{{formData.motto}}</Tag>
               </form-item>
             </i-col>
           </Row>
 
+          <Row>
+            <i-col span="12" offset="6">
+              <form-item label="Create Time">
+                <Tag checkable color="yellow">{{createdTime}}</Tag>
+              </form-item>
+            </i-col>
+          </Row>
+          </Layout>
 
+          <Row v-show="!aliasExisted">
+            <i-col span="6" offset="6">
+              <form-item label="">
+                <h4>Alias Not Registered.</h4>
+              </form-item>
+            </i-col>
+            <i-col span="6">
+              <form-item>
+                <i-button type="primary" @click="registerAlias = true">注册别名</i-button>
+              </form-item>
+            </i-col>
+          </Row>
         </i-form>
       </Card>
+      <Modal
+        v-model="registerAlias"
+        title="注册别名"
+        @on-ok="submit">
+        <i-form :model="newAlias" :label-width="80">
+          <form-item label="Alias">
+            <i-input v-model="newAlias.alias" placeholder="Input Alias..."></i-input>
+          </form-item>
+          <form-item label="Address">
+            <i-input v-model="newAlias.address" placeholder="Input Address..."></i-input>
+          </form-item>
+          <form-item label="Motto">
+            <i-input v-model="newAlias.motto" placeholder="Input Motto..."></i-input>
+          </form-item>
+        </i-form>
+      </Modal>
+
+      <Modal
+        v-model="webExtensionWalletShow"
+        title="Dependancy needed!"
+        :mask-closable="false"
+        :closable="false">
+        <p>Please install <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> to use NAS ALIAS</p>
+        <p slot="footer"><a @click="reload">Refresh</a>.</p>
+      </Modal>
     </i-content>
     <i-footer>
       <h4>
@@ -75,22 +118,86 @@
   </div>
   <!-- <script type="text/javascript" src="js/index.js"></script> -->
   <script type="text/javascript">
+  var NebPay = require("nebpay");
+  var nebPay = new NebPay();
+
   let vm = new Vue({
     el: '#app',
     data: {
+      txhash: '90ce3840da335e1e28966d33817effde6b0b43e373906cc5dff0b799adbf9925',
+      dappAddress: "n1q5pjNjmhigG3xzoBbXstmEqMZE15AiU5X",
+      // dappAddress: 'n1oXdmwuo5jJRExnZR5rbceMEyzRsPeALgm',
       aliasExisted: false,
+      webExtensionWalletShow: false,
+      searching: false,
+      registerAlias: false,
       formData: {
-        alias: '',
-        address: '',
-        motto: ''
+        alias: "",
+        address: "",
+        motto: "",
+        created: ""
+      },
+      newAlias: {
+        alias: "",
+        address: "",
+        motto: "",
       }
     },
     computed: {
-      showAddress () {
-        return !!this.formData.alias.length
+      createdTime () {
+        if (this.formData.created === "") {
+          return ""
+        }
+        return moment(new Date(+this.formData.created)).format('YYYY-MM-DD hh:mm:ss')
       }
     },
     methods: {
+      submit() {
+        var to = this.dappAddress;
+        var value = "0";
+        var callFunction = "save";
+        var callArgs = [this.newAlias.alias, this.newAlias.address, this.newAlias.motto];
+        nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {    //使用nebpay的call接口去调用合约,
+            listener: this.submitCb
+        });
+      },
+      submitCb(resp) {
+        console.log(resp);
+        this.registerAlias = false;
+      },
+      searchAlias() {
+        if (!this.formData.alias) {
+          this.$Message.error({
+            content: '请填写要搜索的别名！'
+          })
+          return
+        }
+        var to = this.dappAddress;
+        var value = "0";
+        var callFunction = "get";
+        var mapName = 'aliasMap'
+        // var callArgs = "[\"" + mapName + "\",\"" + this.formData.alias + "\"]"
+        var callArgs = JSON.stringify([mapName,this.formData.alias])
+        this.searching = true;
+        nebPay.simulateCall(to, value, callFunction, callArgs, {    //使用nebpay的simulateCall接口去执行get查询, 模拟执行.不发送交易,不上链
+            listener: this.searchCb    //指定回调函数
+        });
+      },
+      searchCb(resp) {
+        this.searching = false;
+        var result = resp.result;
+        if (result === "null") {
+          this.aliasNotExistedInfo();
+          this.aliasExisted = false;
+        } else {
+          this.aliasExisted = true;
+          var resultObj = JSON.parse(result);
+          this.formData.alias = resultObj.alias;
+          this.formData.address = resultObj.address;
+          this.formData.author = resultObj.author;
+          this.formData.motto = resultObj.value;
+        }
+      },
       aliasExistedInfo() {
         this.$Notice.info({
           top: 50,
@@ -111,12 +218,22 @@
 
       },
       sendCoin() {
-
+        
+      },
+      reload() {
+        window.location.reload()
+      },
+      checkWakket() {
+        if (typeof(webExtensionWallet) === "undefined") {
+          this.webExtensionWalletShow = true
+        }
       }
+    },
+    mounted() {
+      this.checkWakket()
     },
     created() {
       console.log('aaa')
-      this.hehe = 'fff'
     }
   })
 

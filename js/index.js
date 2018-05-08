@@ -1,6 +1,14 @@
+var NebPay = require("nebpay");
+var nebPay = new NebPay();
+
+if (typeof(webExtensionWallet) === "undefined") {
+  alert('hehe')
+}
+
 let vm = new Vue({
   el: '#app',
   data: {
+    dappAddress: 'n1eyHxVy1gskv8ByqQ4D3WKpsoxpZ5B31Ad',
     aliasExisted: false,
     formData: {
       alias: '',
@@ -13,7 +21,7 @@ let vm = new Vue({
       return !!this.formData.alias.length
     }
   },
-  method: {
+  methods: {
     aliasExistedInfo() {
       this.$Notice.config({
         top: 50,
@@ -23,8 +31,9 @@ let vm = new Vue({
       });
     }
   },
-  created() {
-    console.log('aaa')
-    this.hehe = 'fff'
+  mounted() {
+    if (typeof(webExtensionWallet) === "undefined") {
+    alert('hehe')
+  }
   }
 })
