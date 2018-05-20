@@ -16,21 +16,47 @@
 <body>
   <div id="app">
     <i-header>
-      <h1 class="title">Nas Alias</h1>
+      <h1 class="title">Nas 别名</h1>
     </i-header>
     <i-content class="content">
       <Card>
-        <p slot="title">Alias Check</p>
+        <div slot="title">
+          <p>用途：</p>
+          <p>
+            　　众所周知，NAS钱包地址是由数字和字母组成的一串35位的字符串，平时难以记忆。为了让大家方便记忆和转账，开发了这个NAS别名app。每个别名都对应一个唯一的NAS钱包地址，但一个钱包地址可以对应多个别名。转账时可以通过别名查询对应的地址并快速转账。
+          </p>
+          <p>使用方法：</p>
+          <p>
+            　　如果您是第一次使用，可以在下边的搜索框中填入便于记忆的别名，点击搜索，查看该别名是否已被注册。
+            　　若未被注册，则可以输入一个钱包地址，注册别名。
+            　　若已被注册，则能够方便的看出该别名对应的NAS钱包地址，该别名的作者以及该别名的注册时间。并可以一键转账到该地址。
+          </p>
+        </div>
+        
         <i-form :model="formData" :label-width="80">
           <Row>
             <i-col span="6" offset="6">
-              <form-item label="Alias">
-                <i-input v-model="formData.alias" placeholder="Input Alias..."></i-input>
+              <form-item label="别名">
+                <i-input v-model="formData.alias" @keyup.enter.native="searchAlias" placeholder="请输入别名..."></i-input>
               </form-item>
             </i-col>
             <i-col span="6">
               <form-item>
-                <i-button type="primary" @click="searchAlias" :loading="searching">Search</i-button>
+                <i-button type="primary" @click="searchAlias" :loading="searching">搜索</i-button>
+              </form-item>
+            </i-col>
+          </Row>
+
+          <Row>
+            <i-col span="6" offset="6">
+              <form-item label="">
+                <h4 v-show="!aliasExisted">别名尚未注册。</h4>
+                <h4 v-show="aliasExisted">该别名已注册。</h4>
+              </form-item>
+            </i-col>
+            <i-col span="6">
+              <form-item>
+                <i-button type="primary" @click="registerAliasFunc">注册新别名</i-button>
               </form-item>
             </i-col>
           </Row>
@@ -38,46 +64,35 @@
           <Layout v-show="aliasExisted">
             <Row>
             <i-col span="6" offset="6">
-              <form-item label="Address">
-                <p>{{formData.author}}</p>
+              <form-item label="钱包地址">
+                <p>{{formData.address}}</p>
               </form-item>
             </i-col>
             <i-col span="6">
               <form-item>
-                <i-button type="primary" @click="sendCoin">Send NAS</i-button>
+                <i-button type="primary" @click="sendCoin">向他发送NAS</i-button>
               </form-item>
             </i-col>
           </Row>
 
           <Row>
             <i-col span="12" offset="6">
-              <form-item label="Motto">
-                <Tag checkable color="blue">{{formData.motto}}</Tag>
+              <form-item label="作者">
+                <Tag checkable color="blue">{{formData.author}}</Tag>
               </form-item>
             </i-col>
           </Row>
 
           <Row>
             <i-col span="12" offset="6">
-              <form-item label="Create Time">
-                <Tag checkable color="yellow">{{createdTime}}</Tag>
+              <form-item label="生成时间">
+                <Tag checkable color="yellow">{{formData.created}}</Tag>
               </form-item>
             </i-col>
           </Row>
           </Layout>
 
-          <Row v-show="!aliasExisted">
-            <i-col span="6" offset="6">
-              <form-item label="">
-                <h4>Alias Not Registered.</h4>
-              </form-item>
-            </i-col>
-            <i-col span="6">
-              <form-item>
-                <i-button type="primary" @click="registerAlias = true">注册别名</i-button>
-              </form-item>
-            </i-col>
-          </Row>
+          
         </i-form>
       </Card>
       <Modal
@@ -85,15 +100,15 @@
         title="注册别名"
         @on-ok="submit">
         <i-form :model="newAlias" :label-width="80">
-          <form-item label="Alias">
-            <i-input v-model="newAlias.alias" placeholder="Input Alias..."></i-input>
+          <form-item label="别名">
+            <i-input v-model="newAlias.alias" placeholder="请输入别名..."></i-input>
           </form-item>
-          <form-item label="Address">
-            <i-input v-model="newAlias.address" placeholder="Input Address..."></i-input>
+          <form-item label="钱包地址">
+            <i-input v-model="newAlias.address" placeholder="请输入钱包地址..."></i-input>
           </form-item>
-          <form-item label="Motto">
-            <i-input v-model="newAlias.motto" placeholder="Input Motto..."></i-input>
-          </form-item>
+          <!-- <form-item label="备注">
+            <i-input v-model="newAlias.motto" placeholder="请输入备注..."></i-input>
+          </form-item> -->
         </i-form>
       </Modal>
 
@@ -124,9 +139,8 @@
   let vm = new Vue({
     el: '#app',
     data: {
-      txhash: '90ce3840da335e1e28966d33817effde6b0b43e373906cc5dff0b799adbf9925',
-      dappAddress: "n1q5pjNjmhigG3xzoBbXstmEqMZE15AiU5X",
-      // dappAddress: 'n1oXdmwuo5jJRExnZR5rbceMEyzRsPeALgm',
+      txhash: '35457c8b0193e4124ce0ec114405b6aede98e4a4b61095facc0c11e178bfe6a3',
+      dappAddress: "n1nHApTFh6wNvFL6poDRtmfJyXYeDWUNBVQ",
       aliasExisted: false,
       webExtensionWalletShow: false,
       searching: false,
@@ -134,13 +148,12 @@
       formData: {
         alias: "",
         address: "",
-        motto: "",
+        author: "",
         created: ""
       },
       newAlias: {
         alias: "",
         address: "",
-        motto: "",
       }
     },
     computed: {
@@ -153,17 +166,56 @@
     },
     methods: {
       submit() {
+        if (!this.newAlias.alias || !this.newAlias.address) {
+          this.$Message.error({
+            content: '请填写完整！'
+          })
+          this.$nextTick(() =>{
+            this.registerAlias = true;
+          })
+          return
+        }
+        if (this.newAlias.address.substr(0,2) !== 'n1' || this.newAlias.address.length !== 35) {
+          this.$Message.error({
+            content: '请填写合法的nas钱包地址！'
+          })
+          this.$nextTick(() =>{
+            this.registerAlias = true;
+          })
+          return
+        }
         var to = this.dappAddress;
         var value = "0";
         var callFunction = "save";
-        var callArgs = [this.newAlias.alias, this.newAlias.address, this.newAlias.motto];
+        var callArgs = [this.newAlias.alias, this.newAlias.address];
         nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {    //使用nebpay的call接口去调用合约,
             listener: this.submitCb
         });
       },
       submitCb(resp) {
+        console.log('*******************************');
         console.log(resp);
+        console.log('*******************************');
         this.registerAlias = false;
+        this.$Modal.success({
+          title: '注册成功',
+          content: '新注册的别名需要进行区块确认，这可能会花费几十秒钟的时间。</br>你可以在<a href="https://wallet.nasscan.io/check.html" target="_blank">https://wallet.nasscan.io/check.html</a>中</br>使用<code>'+resp.txhash+'</code>查询进度！',
+            width: 600
+        })
+      },
+      sendCoin(){
+        var to = this.formData.address;
+        var value = "0";
+        var options = {
+          // callback: this.payCb
+        };
+        nebPay.pay(to, value, options)
+      },
+      registerAliasFunc(){
+        this.registerAlias = true;
+        if (!this.aliasExisted) {
+          this.newAlias.alias = this.formData.alias;
+        }
       },
       searchAlias() {
         if (!this.formData.alias) {
@@ -195,7 +247,7 @@
           this.formData.alias = resultObj.alias;
           this.formData.address = resultObj.address;
           this.formData.author = resultObj.author;
-          this.formData.motto = resultObj.value;
+          this.formData.created = this.timestampToTime(resultObj.created);
         }
       },
       aliasExistedInfo() {
@@ -217,9 +269,6 @@
       addNewAlias() {
 
       },
-      sendCoin() {
-        
-      },
       reload() {
         window.location.reload()
       },
@@ -227,6 +276,16 @@
         if (typeof(webExtensionWallet) === "undefined") {
           this.webExtensionWalletShow = true
         }
+      },
+      timestampToTime(timestamp) {
+        var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        Y = date.getFullYear() + '-';
+        M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+        D = date.getDate() + ' ';
+        h = date.getHours() + ':';
+        m = date.getMinutes() + ':';
+        s = date.getSeconds();
+        return Y+M+D+h+m+s;
       }
     },
     mounted() {

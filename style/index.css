@@ -1,9 +1,17 @@
 #app{
-  width: 80%;
+  width: 60%;
   margin: 0 auto;
 }
 .content{
   min-height: 800px;
+}
+code{
+	background-color: gray;
+	display: inline-block;
+	margin: 0 5px;
+	padding: 0 5px;
+	border-radius: 5px;
+	color: #fff;
 }
 .title{
   color: #fff;

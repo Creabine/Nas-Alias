@@ -4,23 +4,23 @@ var AliasItem = function(text) {
 	if (text) {
 		var obj = JSON.parse(text);
 		this.alias = obj.alias;
+		this.address = obj.address;
 		this.author = obj.author;
-		this.motto = obj.mooto;
 		this.created = obj.created;
 	} else {
-		this.alias = '';
-		this.author = '';
-		this.motto = '';
+		this.alias = "";
+		this.address = "";
+		this.author = "";
 		this.created = this.now();
 	}
 };
 
 AliasItem.prototype = {
 	toString: function () {
-		return JSON.stringify(this)
+		return JSON.stringify(this);
 	},
 	now: function () {
-		return Date.parse(new Date())
+		return Date.parse(new Date());
 	}
 };
 
@@ -30,7 +30,7 @@ var AliasMap = function () {
 			return new AliasItem(text);
 		},
 		stringify: function(obj) {
-			return obj.toString;
+			return obj.toString();
 		}
 	});
 	LocalContractStorage.defineMapProperty(this, "addressMap", {
@@ -38,37 +38,35 @@ var AliasMap = function () {
 			return new AliasItem(text);
 		},
 		stringify: function(obj) {
-			return obj.toString;
+			return obj.toString();
 		}
 	});
 };
 
 AliasMap.prototype = {
 	init: function() {},
-	save: function(alias, address, motto) {
+	save: function(alias, address) {
 		alias = alias.trim();
 		address = address.trim();
-		motto = motto.trim();
-		if (alias === "" || address === "" || motto === ""){
-            throw new Error("empty alias / address / motto!");
-        }
-        if (alias.length > 64 || address.length > 64 || motto.length > 64){
-            throw new Error("alias / address / motto exceed limit length!")
-        }
-        var author = Blockchain.transaction.from;
-        var aliasItem = this.aliasMap.get(alias)
-        if (aliasItem) {
-        	throw new Error("alias has been occupied!");
-        	return
-        }
-        aliasItem = new AliasItem();
-        aliasItem.alias = alias;
-        aliasItem.address = address;
-        aliasItem.motto = motto;
-        aliasItem.author = author;
-        
-        this.aliasMap.put(alias, aliasItem);
-        this.addressMap.put(address, aliasItem);
+		// motto = motto.trim();
+		if (alias === "" || address === ""){
+        throw new Error("empty alias / address!");
+    }
+    if (alias.length > 64 || address.length > 64){
+        throw new Error("alias / address  exceed limit length!");
+    }
+    var author = Blockchain.transaction.from;
+    var aliasItem = this.aliasMap.get(alias);
+    if (aliasItem) {
+    	throw new Error("alias has been occupied!");
+    }
+    aliasItem = new AliasItem();
+    aliasItem.alias = alias;
+    aliasItem.address = address;
+    aliasItem.author = author;
+
+    this.aliasMap.put(alias, aliasItem);
+    this.addressMap.put(address, aliasItem);
 	},
 	get: function(mapName, value) {
 		mapName = mapName.trim();
