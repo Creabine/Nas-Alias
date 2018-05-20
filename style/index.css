@@ -5,6 +5,9 @@
 .content{
   min-height: 800px;
 }
+.content p{
+	font-weight: normal !important;
+}
 code{
 	background-color: gray;
 	display: inline-block;

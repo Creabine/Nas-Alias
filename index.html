@@ -16,19 +16,29 @@
 <body>
   <div id="app">
     <i-header>
-      <h1 class="title">Nas 别名</h1>
+      <h1 class="title">Nas Alias</h1>
     </i-header>
     <i-content class="content">
       <Card>
         <div slot="title">
-          <p>用途：</p>
+          <h3>用途：</h3>
           <p>
-            　　众所周知，NAS钱包地址是由数字和字母组成的一串35位的字符串，平时难以记忆。为了让大家方便记忆和转账，开发了这个NAS别名app。每个别名都对应一个唯一的NAS钱包地址，但一个钱包地址可以对应多个别名。转账时可以通过别名查询对应的地址并快速转账。
+            　　众所周知，NAS钱包地址是由数字和字母组成的一串35位的字符串，平时难以记忆。为了让大家方便记忆和转账，开发了这个NAS别名dapp。
           </p>
-          <p>使用方法：</p>
+          <p>
+            　　每个别名都对应一个唯一的NAS钱包地址，但一个钱包地址可以对应多个别名。
+          </p>
+          <p>
+            　　转账时可以通过别名查询对应的地址并快速转账。
+          </p>
+          <h3>使用方法：</h3>
           <p>
             　　如果您是第一次使用，可以在下边的搜索框中填入便于记忆的别名，点击搜索，查看该别名是否已被注册。
+          </p>
+          <p>
             　　若未被注册，则可以输入一个钱包地址，注册别名。
+          </p>
+          <p>
             　　若已被注册，则能够方便的看出该别名对应的NAS钱包地址，该别名的作者以及该别名的注册时间。并可以一键转账到该地址。
           </p>
         </div>
@@ -139,8 +149,8 @@
   let vm = new Vue({
     el: '#app',
     data: {
-      txhash: '35457c8b0193e4124ce0ec114405b6aede98e4a4b61095facc0c11e178bfe6a3',
-      dappAddress: "n1nHApTFh6wNvFL6poDRtmfJyXYeDWUNBVQ",
+      txhash: '44367166ffce5b4b902ee0690d11d2cddcfacc80c4b33acc22d3906fcb03705b',
+      dappAddress: "n1vKLLiRmZWgcVVya93ChsgWq7VhKq6VUiw",
       aliasExisted: false,
       webExtensionWalletShow: false,
       searching: false,
@@ -193,9 +203,6 @@
         });
       },
       submitCb(resp) {
-        console.log('*******************************');
-        console.log(resp);
-        console.log('*******************************');
         this.registerAlias = false;
         this.$Modal.success({
           title: '注册成功',
