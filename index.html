@@ -124,11 +124,11 @@
 
       <Modal
         v-model="webExtensionWalletShow"
-        title="Dependancy needed!"
+        title="您的浏览器不支持星云dapp!"
         :mask-closable="false"
         :closable="false">
-        <p>Please install <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> to use NAS ALIAS</p>
-        <p slot="footer"><a @click="reload">Refresh</a>.</p>
+        <p>请先安装<a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a></p>
+        <p slot="footer"><a @click="reload">刷新</a></p>
       </Modal>
     </i-content>
     <i-footer>
@@ -225,6 +225,10 @@
         }
       },
       searchAlias() {
+        if (typeof(webExtensionWallet) === "undefined") {
+          this.webExtensionWalletShow = true
+          return
+        }
         if (!this.formData.alias) {
           this.$Message.error({
             content: '请填写要搜索的别名！'
@@ -296,7 +300,7 @@
       }
     },
     mounted() {
-      this.checkWakket()
+      // this.checkWakket()
     },
     created() {
       console.log('aaa')
