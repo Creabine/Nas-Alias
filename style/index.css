@@ -2,8 +2,8 @@
   width: 60%;
   margin: 0 auto;
 }
-.content{
-  min-height: 800px;
+.card{
+  min-height: 300px;
 }
 .content p{
 	font-weight: normal !important;
